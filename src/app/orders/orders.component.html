@@ -1,0 +1,804 @@
+<div class="card">
+  <div class="card-body">
+    <!-- Button to create a new order -->
+    <div>
+      <button
+        type="button"
+        mat-raised-button
+        color="primary"
+        (click)="createOrder()"
+      >
+        New Order
+      </button>
+    </div>
+
+    <!-- Tabs navs -->
+    <ul class="nav nav-tabs mb-3 mt-3" id="ex1" role="tablist">
+      <li
+        *ngFor="let order of orders; index as i"
+        class="nav-item"
+        role="presentation"
+      >
+        <a
+          class="nav-link fs-4 fw-medium information-customer"
+          [class.active]="activeTab === i"
+          (click)="selectTab(i)"
+          id="tab-{{ i }}"
+          role="tab"
+          href="javascript:void(0);"
+        >
+          {{ order.orderCode }}&nbsp;&nbsp;&nbsp;&nbsp;
+          <span
+            class="information-customer remove-tab"
+            (click)="deleteTab(order.id)"
+          >
+            <i class="fa-solid fa-xmark"></i>
+          </span>
+        </a>
+      </li>
+    </ul>
+    <!-- Tabs navs -->
+
+    <!-- Tabs content -->
+    <div class="tab-content" id="ex1-content">
+      <div
+        *ngFor="let order of orders; index as i"
+        class="tab-pane fade"
+        [class.show]="activeTab === i"
+        [class.active]="activeTab === i"
+        id="tab-content-{{ i }}"
+        role="tabpanel"
+      >
+        <div class="row">
+          <div class="col-12">
+            <div class="float-end">
+              <button
+                class="btn btn-success"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#addProduct"
+                (click)="loadProducts()"
+              >
+                Add product
+              </button>
+            </div>
+            <!-- <div class="float-end me-2">
+              <button class="btn btn-warning" type="button">QR Code</button>
+            </div> -->
+          </div>
+        </div>
+        <div class="card mt-1 p-2">
+          <h5 class="fw-bolder font-monospace text-uppercase text-info">
+            List Product in Cart
+          </h5>
+          <!-- Table product-->
+          <div *ngIf="orderDetails.length > 0">
+            <table class="table table-hover table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">Product</th>
+                  <th scope="col">Price</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Total</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let orderDetail of orderDetails"
+                  class="table-product-order"
+                >
+                  <td>
+                    {{ orderDetail.idProductDetails.idProduct.productName }} [
+                    {{ orderDetail.idProductDetails.idColor.colorName }} -
+                    {{ orderDetail.idProductDetails.idSize.sizeName }} ]
+                  </td>
+                  <td>
+                    {{
+                      orderDetail.idProductDetails.priceNew | thousandSeparator
+                    }}&nbsp;$
+                  </td>
+                  <td class="qty">
+                    <input
+                      title="Quantity"
+                      type="number"
+                      min="1"
+                      class="form-control"
+                      [(ngModel)]="orderDetail.quantity"
+                      (ngModelChange)="
+                        onQtyChange(
+                          orderDetail.id,
+                          orderDetail.idProductDetails.id,
+                          $event
+                        )
+                      "
+                    />
+                  </td>
+                  <td>
+                    {{ orderDetail.totalPrice | thousandSeparator }}&nbsp;$
+                  </td>
+                  <td>
+                    <button
+                      class="btn btn-danger"
+                      type="button"
+                      (click)="
+                        removeProduct(
+                          orderDetail.id,
+                          orderDetail.idProductDetails.id
+                        )
+                      "
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            *ngIf="orderDetails.length == 0"
+            class="d-flex justify-content-center align-items-center"
+          >
+            <img
+              src="https://bizweb.dktcdn.net/100/325/189/themes/675912/assets/empty-cart.png?1533693226542"
+              alt="empty cart"
+              class="img-fluid"
+            />
+          </div>
+        </div>
+
+        <div class="card mt-1 p-2">
+          <div class="row p-0">
+            <div class="col-5">
+              <h5
+                class="fw-bolder font-monospace text-uppercase text-info pt-3"
+              >
+                Customer Information
+              </h5>
+            </div>
+            <div class="col-2">
+              <div *ngIf="order.idCustomer != null">
+                <button
+                  type="button"
+                  class="noselect"
+                  (click)="removeCustomer(order)"
+                >
+                  <span class="text"
+                    >{{ order.idCustomer.firstName }}
+                    {{ order.idCustomer.lastName }}</span
+                  ><span class="icon"
+                    ><svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M24 20.188l-8.315-8.209 8.2-8.282-3.697-3.697-8.212 8.318-8.31-8.203-3.666 3.666 8.321 8.24-8.206 8.313 3.666 3.666 8.237-8.318 8.285 8.203z"
+                      ></path></svg
+                  ></span>
+                </button>
+              </div>
+            </div>
+            <div class="col-3 p-0 m-0">
+              <mat-form-field appearance="fill" class="searchOrderCustomer">
+                <mat-label>Enter the phone number</mat-label>
+                <input
+                  title="Search by phone number"
+                  id="customer-{{ i }}"
+                  type="text"
+                  matInput
+                  [formControl]="myControl"
+                  [matAutocomplete]="auto"
+                />
+                <button
+                  type="button"
+                  mat-icon-button
+                  matSuffix
+                  (click)="clearInput()"
+                >
+                  <mat-icon>clear</mat-icon>
+                </button>
+                <mat-autocomplete #auto="matAutocomplete">
+                  <mat-option
+                    *ngFor="let option of filteredOptions | async"
+                    [value]="option.phoneNumber"
+                  >
+                    <span>{{ option.firstName }} {{ option.lastName }}</span
+                    ><br />
+                    <small>{{ option.phoneNumber }}</small>
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+            </div>
+            <div class="col-1 ps-2 mt-2">
+              <button
+                type="button"
+                class="btn btn-success"
+                (click)="selectCustomer(i)"
+              >
+                Select
+              </button>
+            </div>
+            <div class="col-1 p-0 mt-2">
+              <button type="button" class="btn btn-warning">New</button>
+            </div>
+          </div>
+
+          <div class="row pb-3">
+            <div *ngIf="order.idCustomer == null">
+              <div class="row">
+                <div class="col-2"></div>
+                <div class="col-2 fs-4 fw-medium information-customer">
+                  Customer name
+                </div>
+                <div class="col-1 fs-4 fw-medium information-customer text-end">
+                  :
+                </div>
+                <div class="col-7 fs-4 fst-italic information-customer">
+                  Current customers
+                </div>
+              </div>
+            </div>
+            <div *ngIf="order.idCustomer != null">
+              <div class="row">
+                <div class="col-2"></div>
+                <div class="col-2 fs-4 fw-medium information-customer">
+                  Customer name
+                </div>
+                <div class="col-1 fs-4 fw-medium information-customer text-end">
+                  :
+                </div>
+                <div class="col-7 fs-4 fst-italic information-customer">
+                  {{ order.idCustomer.firstName }}
+                  {{ order.idCustomer.lastName }}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-2"></div>
+                <div class="col-2 fs-4 fw-medium information-customer">
+                  Phone number
+                </div>
+                <div class="col-1 fs-4 fw-medium information-customer text-end">
+                  :
+                </div>
+                <div class="col-7 fs-4 fst-italic information-customer">
+                  {{ order.idCustomer.phoneNumber }}
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-2"></div>
+                <div class="col-2 fs-4 fw-medium information-customer">
+                  Email
+                </div>
+                <div class="col-1 fs-4 fw-medium information-customer text-end">
+                  :
+                </div>
+                <div class="col-7 fs-4 fst-italic information-customer">
+                  {{ order.idCustomer.email }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-1 p-2">
+          <div class="row">
+            <div class="col-7">
+              <h5 class="fw-bolder font-monospace text-uppercase text-info">
+                Payment
+              </h5>
+            </div>
+            <div class="col-5">
+              <div class="checkbox-wrapper-35">
+                <input
+                  title="ChangeOrderType"
+                  value="private"
+                  name="switch"
+                  id="switch-{{ i }}"
+                  type="checkbox"
+                  class="switch"
+                  [checked]="order.orderType == 'Delivery'"
+                  (change)="changeOrderType(i, order)"
+                />
+                <label for="switch-{{ i }}">
+                  <span class="switch-x-toggletext">
+                    <span class="switch-x-unchecked"
+                      ><span class="switch-x-hiddenlabel">Unchecked: </span
+                      >Transaction at the counter</span
+                    >
+                    <span class="switch-x-checked"
+                      ><span class="switch-x-hiddenlabel">Checked: </span
+                      >Delivery</span
+                    >
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-7">
+              <div class="card p-3">
+                <div
+                  class="d-flex justify-content-center"
+                  *ngIf="order.orderType == 'Transaction at the counter'"
+                >
+                  <img
+                    src="https://th.bing.com/th/id/R.d9d903304a2ff98b1778616e71280e73?rik=EPCAQdw3Uflm%2fA&riu=http%3a%2f%2fwww.pngmart.com%2ffiles%2f1%2fSneaker-PNG-Image.png&ehk=%2bzyyB65MBY%2bIvds06HDPjMZh0%2bwBy8sLMGXF4Gv7QZ8%3d&risl=&pid=ImgRaw&r=0"
+                    width="68%"
+                    alt="banner"
+                  />
+                </div>
+                <div *ngIf="order.orderType == 'Delivery'">
+                  <div class="row mt-3">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="fullname-{{ i }}">Full name</label>
+                        <input
+                          id="fullname-{{ i }}"
+                          type="text"
+                          class="form-control"
+                          [value]="order.customerName"
+                        />
+                      </div>
+                      <div class="text-danger" *ngIf="!checkFullName">* Please enter the full name</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="phonenumber-{{ i }}">Phone number</label>
+                        <input
+                          id="phonenumber-{{ i }}"
+                          type="text"
+                          class="form-control"
+                          [value]="order.phoneNumber"
+                        />
+                      </div>
+                      <div class="text-danger" *ngIf="!checkPhoneNumber">* Please enter the phone number</div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label for="city-{{ i }}">Province / City</label>
+                        <select
+                          name="city"
+                          id="city-{{ i }}"
+                          class="form-control"
+                          (change)="onProvinceChange($event)"
+                        >
+                          <option value="">
+                            -- Select the Province / City --
+                          </option>
+                          <option
+                            *ngFor="let province of provinces"
+                            [value]="province.province_id"
+                          >
+                            {{ province.province_name }}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="text-danger" *ngIf="!checkCity">* Please enter the province / city</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label for="district-{{ i }}">District</label>
+                        <select
+                          name="district"
+                          id="district-{{ i }}"
+                          class="form-control"
+                          (change)="onDistrictChange($event)"
+                        >
+                          <option value="">-- Select the District --</option>
+                          <option
+                            *ngFor="let district of districts"
+                            [value]="district.district_id"
+                          >
+                            {{ district.district_name }}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="text-danger" *ngIf="!checkDistrict">* Please enter the district</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label for="ward-{{ i }}">Ward</label>
+                        <select
+                          name="ward"
+                          id="ward-{{ i }}"
+                          class="form-control"
+                        >
+                          <option value="">-- Select the Ward --</option>
+                          <option
+                            *ngFor="let ward of wards"
+                            [value]="ward.ward_id"
+                          >
+                            {{ ward.ward_name }}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="text-danger" *ngIf="!checkWard">* Please enter the ward</div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="col-8">
+                      <div class="form-group">
+                        <label for="specific-location-{{ i }}"
+                          >Specific location</label
+                        >
+                        <input
+                          id="specific-location-{{ i }}"
+                          type="text"
+                          class="form-control"
+                        />
+                      </div>
+                      <div class="text-danger" *ngIf="!checkSpecificLocation">* Please enter the specific location</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="row pe-3 ps-3">
+                        <button type="button" class="btn btn-info save-address" (click)="saveCustomerAddress(order, i)">
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-3">
+                    <div class="information-customer" *ngIf="order.address != null">{{order.address}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-5">
+              <div class="card p-3">
+                <div class="row">
+                  <div class="col-6">
+                    <p class="information-customer">Total price:</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p class="information-customer">
+                      {{ order.totalPrice | thousandSeparator }}&nbsp;&nbsp;$
+                    </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="information-customer">Transport price:</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p class="information-customer">
+                      {{
+                        order.transportPrice | thousandSeparator
+                      }}&nbsp;&nbsp;$
+                    </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="information-customer">Reduced price:</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p class="information-customer">
+                      {{ order.reducedPrice | thousandSeparator }}&nbsp;&nbsp;$
+                    </p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-6">
+                    <p class="information-customer">Total payouts:</p>
+                  </div>
+                  <div class="col-6 text-end">
+                    <p class="information-customer">
+                      {{ order.totalPayouts | thousandSeparator }}&nbsp;&nbsp;$
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <p>Select a payment method</p>
+                <div class="wrapper">
+                  <div class="card-pay">
+                    <input
+                      title="Cash"
+                      class="input"
+                      type="radio"
+                      name="card"
+                      value="cash"
+                    />
+                    <span class="check"></span>
+                    <label class="label">
+                      <div class="title">CASH</div>
+                      <div class="price">
+                        <img
+                          class="payment"
+                          src="https://i.pinimg.com/originals/22/e5/9f/22e59f0d7452609303205401bd571c2f.png"
+                          width="100%"
+                          alt="cash"
+                        />
+                      </div>
+                    </label>
+                  </div>
+                  <div class="card-pay">
+                    <input
+                      title="VNPAY"
+                      class="input"
+                      type="radio"
+                      name="card"
+                      value="vnpay"
+                    />
+                    <span class="check"></span>
+                    <label class="label">
+                      <div class="title">VNPAY</div>
+                      <div class="price">
+                        <img
+                          class="payment"
+                          src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-VNPAY-QR-1-1024x326.png"
+                          width="100%"
+                          alt="vnpay"
+                        />
+                      </div>
+                    </label>
+                  </div>
+                  <div class="card-pay">
+                    <input
+                      title="Card"
+                      class="input"
+                      type="radio"
+                      name="card"
+                      value="card"
+                    />
+                    <span class="check"></span>
+                    <label class="label">
+                      <div class="title">CARD</div>
+                      <div class="price">
+                        <img
+                          class="payment card-img"
+                          src="https://th.bing.com/th/id/R.9d9f0864e3c3ea3a7af1516c923297ae?rik=MVctXp45MDxQLw&riu=http%3a%2f%2fpngimg.com%2fuploads%2fcredit_card%2fcredit_card_PNG4.png&ehk=MKkHJf1mI9XBOYn9fA3QVhS3qDcbBLlE4G89TvdiMhM%3d&risl=&pid=ImgRaw&r=0"
+                          width="100%"
+                          alt="card"
+                        />
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  (click)="submitOrder(order)"
+                >
+                  Create Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tabs content -->
+  </div>
+</div>
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="addProduct"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title" id="exampleModalLabel">Danh sách sản phẩm</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="card p-3">
+          <form [formGroup]="filterForm">
+            <div class="row">
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Product name</mat-label>
+                  <input
+                    matInput
+                    formControlName="productName"
+                    placeholder="Product name"
+                    (keyup)="filterChange('productName', $event)"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Brand</mat-label>
+                  <mat-select
+                    formControlName="brand"
+                    (selectionChange)="filterChange('brand', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let brand of brands$ | async"
+                      [value]="brand.brandName"
+                      >{{ brand.brandName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Category</mat-label>
+                  <mat-select
+                    formControlName="category"
+                    (selectionChange)="filterChange('category', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let category of categories$ | async"
+                      [value]="category.categoryName"
+                      >{{ category.categoryName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Material</mat-label>
+                  <mat-select
+                    formControlName="material"
+                    (selectionChange)="filterChange('material', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let material of materials$ | async"
+                      [value]="material.materialName"
+                      >{{ material.materialName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Sole</mat-label>
+                  <mat-select
+                    formControlName="sole"
+                    (selectionChange)="filterChange('sole', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let sole of soles$ | async"
+                      [value]="sole.soleName"
+                      >{{ sole.soleName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Color</mat-label>
+                  <mat-select
+                    formControlName="color"
+                    (selectionChange)="filterChange('color', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let color of colors$ | async"
+                      [value]="color.colorName"
+                      >{{ color.colorName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <mat-form-field class="filter">
+                  <mat-label>Size</mat-label>
+                  <mat-select
+                    formControlName="size"
+                    (selectionChange)="filterChange('size', $event.value)"
+                  >
+                    <mat-option value="">All</mat-option>
+                    <mat-option
+                      *ngFor="let size of sizes$ | async"
+                      [value]="size.sizeName"
+                      >{{ size.sizeName }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-3">
+                <button
+                  mat-raised-button
+                  color="accent"
+                  type="button"
+                  (click)="resetFilter()"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <table
+            mat-table
+            matSort
+            [dataSource]="dataSource"
+            class="mat-elevation-z8 table table-striped"
+          >
+            <!-- ID Column -->
+            <ng-container matColumnDef="index">
+              <th mat-header-cell *matHeaderCellDef>#</th>
+              <td mat-cell *matCellDef="let product; let i = index">
+                {{ getIndex(i) }}
+              </td>
+            </ng-container>
+
+            <!-- ProductName Column -->
+            <ng-container matColumnDef="productName">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                &nbsp;Product&nbsp;Name&nbsp;
+              </th>
+              <td mat-cell *matCellDef="let productDetail">
+                {{ productDetail.idProduct.productName }} [{{
+                  productDetail.idColor.colorName
+                }}
+                - {{ productDetail.idSize.sizeName }}]
+              </td>
+            </ng-container>
+
+            <!-- Price Column -->
+            <ng-container matColumnDef="price">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>Price</th>
+              <td mat-cell *matCellDef="let productDetail">
+                {{ productDetail.priceNew | thousandSeparator }}&nbsp;$
+              </td>
+            </ng-container>
+
+            <!-- Quantity Column -->
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>Qty</th>
+              <td mat-cell *matCellDef="let productDetail">
+                {{ productDetail.quantity }}
+              </td>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let productDetail" class="action-cell">
+                <button
+                  title="Select"
+                  mat-raised-button
+                  color="warn"
+                  type="button"
+                  mat-button
+                  data-bs-toggle="modal"
+                  data-bs-target="#enterQuantity"
+                  (click)="selectProduct(productDetail.id)"
+                >
+                  <i class="fa-solid fa-circle-check"></i>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+
+          <mat-paginator
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            showFirstLastButtons
+          ></mat-paginator>
+        </div>
+      </div>
+      <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save</button>
+        </div> -->
+    </div>
+  </div>
+</div>
+<!-- Modal -->

@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "http://vapi.vnappmob.com",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api": "/api"
+    }
+  }
+}
