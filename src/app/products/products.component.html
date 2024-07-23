@@ -236,7 +236,7 @@
           [dataSource]="dataSource"
           class="mat-elevation-z8 table table-striped"
         >
-          <!-- ID Column -->
+          <!-- Index Column -->
           <ng-container matColumnDef="index">
             <th mat-header-cell *matHeaderCellDef>#</th>
             <td mat-cell *matCellDef="let product; let i = index">
@@ -302,7 +302,7 @@
             </td>
           </ng-container>
 
-          <!-- Sole Column -->
+          <!-- Action Column -->
           <ng-container matColumnDef="action">
             <th mat-header-cell *matHeaderCellDef>Action</th>
             <td mat-cell *matCellDef="let product" class="action-cell">
