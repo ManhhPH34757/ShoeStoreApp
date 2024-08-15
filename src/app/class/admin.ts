@@ -7,5 +7,8 @@ export class Admin {
   public address!: string;
   public phoneNumber!: string;
   public email!: string;
+  public password!: string;
+  public role!: string;
+  public status!: string;
   public birthday!: Date;
 }

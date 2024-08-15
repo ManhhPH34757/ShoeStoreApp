@@ -8,5 +8,4 @@ export class OrderDetail {
   public quantity!: number;
   public totalPrice!: number;
   public status!: string;
-  public productStatus!: string;
 }

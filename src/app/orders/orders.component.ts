@@ -38,9 +38,6 @@ import { Sizes } from '../class/sizes';
 import { CustomerService } from '../service/customer.service';
 import { Customer } from '../class/customer';
 import { AddressService } from '../service/address.service';
-import { Pay } from '../class/pay';
-import { PayService } from '../service/pay.service';
-import { subscribe } from 'diagnostics_channel';
 
 @Component({
   selector: 'app-orders',
@@ -123,7 +120,6 @@ export class OrdersComponent implements OnInit, AfterViewInit {
     private sizeService: SizeService,
     private customerService: CustomerService,
     private addressService: AddressService,
-    private payService: PayService,
     private cdr: ChangeDetectorRef
   ) {
     this.orders$ = this.orderService.getOrdersWaitForPay();

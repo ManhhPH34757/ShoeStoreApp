@@ -13,5 +13,5 @@ export class Product {
   public idMaterial: Material = new Material();
   public dateCreated: Date = new Date();
   public dateUpdated: Date = new Date();
-
+  public weight: number = 0;
 }

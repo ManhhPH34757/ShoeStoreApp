@@ -94,6 +94,19 @@
                 >
               </mat-form-field>
 
+              <mat-form-field>
+                <mat-label>Weight</mat-label>
+                <input
+                  matInput
+                  placeholder="Weight"
+                  formControlName="weight"
+                />
+                <mat-error
+                  *ngIf="productForm.get('productName')?.hasError('required')"
+                  >Product Name is required</mat-error
+                >
+              </mat-form-field>
+
               <div class="p-3">
                 <button
                   mat-raised-button

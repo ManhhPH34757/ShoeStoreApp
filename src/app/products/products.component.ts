@@ -110,6 +110,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
       idCategory: [null, Validators.required],
       idSole: [null, Validators.required],
       idMaterial: [null, Validators.required],
+      weight: ['', Validators.required],
       dateCreated: [{ value: new Date(), disabled: true }],
       dateUpdated: [{ value: new Date(), disabled: true }],
     });
@@ -136,6 +137,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
         idCategory: product.idCategory.id,
         idSole: product.idSole.id,
         idMaterial: product.idMaterial.id,
+        weight: product.weight,
         dateCreated: product.dateCreated,
         dateUpdated: product.dateUpdated,
       });
@@ -152,6 +154,7 @@ export class ProductsComponent implements OnInit, AfterViewInit {
         ...this.selectedProduct,
         productCode: this.productForm.get('productCode')?.value,
         productName: this.productForm.get('productName')?.value,
+        weight: this.productForm.get('weight')?.value,
         idBrand: new Brand(),
         idCategory: new Category(),
         idSole: new Sole(),

@@ -1,7 +1,6 @@
 import { Admin } from "./admin";
 import { Coupon } from "./coupon";
 import { Customer } from "./customer";
-import { Pay } from "./pay";
 
 export class Order {
   public id!: number;
@@ -9,7 +8,6 @@ export class Order {
   public idCustomer!: Customer | null;
   public idAdmin!: Admin;
   public idCoupons!: Coupon;
-  public idPay!: Pay;
   public customerName!: string;
   public phoneNumber!: string;
   public address!: string;
